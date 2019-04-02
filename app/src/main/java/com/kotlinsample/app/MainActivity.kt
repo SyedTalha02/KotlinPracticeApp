@@ -2,7 +2,7 @@ package com.kotlinsample.app
 
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity
 
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Sample 2Action", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, "Sample Action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
     }
