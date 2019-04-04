@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">KotlinSampleApp</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_register">Register</string>
+    <string name="text_go_to_login">Already have an account? Click here to login.</string>
+    <string name="text_login">Login</string>
+    <string name="text_back_to_reg">Back to registration</string>
 </resources>
