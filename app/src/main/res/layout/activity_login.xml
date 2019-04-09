@@ -46,4 +46,8 @@
             app:layout_constraintEnd_toEndOf="@+id/login_button_login"
             app:layout_constraintStart_toStartOf="@+id/login_button_login" android:textAlignment="center"
     />
+
+    <include layout="@layout/loading_screen"
+             android:id="@+id/loader"
+             android:visibility="gone"/>
 </android.support.constraint.ConstraintLayout>

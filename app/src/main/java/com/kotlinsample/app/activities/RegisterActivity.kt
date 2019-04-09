@@ -5,19 +5,21 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.kotlinsample.app.R
+import com.kotlinsample.app.listeners.AuthServiceListeners
+import com.kotlinsample.app.models.User
 import kotlinx.android.synthetic.main.activity_register.*
 import java.util.*
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : BaseActivity() {
 
-    private lateinit var auth: FirebaseAuth
     var selectedImageUri: Uri? = null;
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,11 +27,9 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
 
         createOnClickListener()
-        auth = FirebaseAuth.getInstance()
     }
 
     private fun createOnClickListener() {
-
 
         register_button_register.setOnClickListener {
             if (email_editText_register.text.isEmpty() || password_edittext_register.text.isEmpty()) {
@@ -41,8 +41,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         login_textview_register.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            navigateToActivity(LoginActivity())
         }
 
         selectphoto_button_register.setOnClickListener {
@@ -53,28 +52,28 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun registerUser(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("Create User Status", "createUserWithEmail:success")
-                    val user = auth.currentUser
-                    uploadImageToFirebaseStorage()
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("Create User Status", "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(
-                        baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+       showLoader()
+        serviceManager.registerUser(email, password, authServiceListeners = object:AuthServiceListeners{
 
+            override fun onSuccess() {
 
-            }.addOnFailureListener {
-                Log.d("FAILURE", "Unable to create user")
+                hideLoader()
             }
 
+            override fun onFailure() {
+                hideLoader()
+            }
 
+            override fun onSuccess(authResult: AuthResult?) {
+                val user = authResult?.user
+                uploadImageToFirebaseStorage()
+            }
+
+            override fun onFailure(exception: Exception?) {
+                Log.w("Create User Status", "createUserWithEmail:failure $exception")
+                hideLoader()
+            }
+        })
     }
 
     private fun uploadImageToFirebaseStorage() {
@@ -91,7 +90,7 @@ class RegisterActivity : AppCompatActivity() {
                 Log.d("Register ", "${it}")
 
                 saveUserToFirebaseStorage(it.toString())
-            }
+            }.addOnFailureListener { hideLoader() }
         }
     }
 
@@ -102,14 +101,11 @@ class RegisterActivity : AppCompatActivity() {
         val user = User(uid, username_edittext_register.text.toString(), profileImageUrl, email_editText_register.text.toString())
         ref.setValue(user)
             .addOnSuccessListener {
-                navigateToLatestMessageActivity()
-            }
-    }
+//                navigateToLatestMessageActivity()
 
-    private fun navigateToLatestMessageActivity() {
-        var intent = Intent(this, LatestMessagesActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
+                hideLoader()
+                navigateToActivityClearTask(LatestMessagesActivity())
+            }.addOnFailureListener { hideLoader() }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -124,9 +120,12 @@ class RegisterActivity : AppCompatActivity() {
             selectphoto_button_register.alpha = 0f
         }
     }
-}
 
-class User(val uid: String, val username: String, val profileImageUrl: String, val email: String) {
-    constructor() : this("","","", "")
+    fun showLoader(){
+        loader.visibility = View.VISIBLE
+    }
 
+    fun hideLoader(){
+        loader.visibility = View.GONE
+    }
 }

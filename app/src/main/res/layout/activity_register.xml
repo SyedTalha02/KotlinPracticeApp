@@ -87,4 +87,7 @@
                                                   app:layout_constraintTop_toTopOf="parent"
                                                   android:layout_marginTop="24dp"
                                                   android:id="@+id/circularimageview_register"/>
+    <include layout="@layout/loading_screen"
+             android:id="@+id/loader"
+    android:visibility="gone"/>
 </android.support.constraint.ConstraintLayout>

@@ -1,15 +1,16 @@
 package com.kotlinsample.app.activities
 
-import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.kotlinsample.app.R
+import com.kotlinsample.app.listeners.AuthServiceListeners
 import kotlinx.android.synthetic.main.activity_login.*
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
 
     private lateinit var auth: FirebaseAuth
 
@@ -22,44 +23,51 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setOnClickListeners() {
-        backtoreg_textview_login.setOnClickListener{finish()}
+        backtoreg_textview_login.setOnClickListener { finish() }
 
         login_button_login.setOnClickListener {
-           if( email_edittext_login.text.isEmpty() || password_edittext_login.text.isEmpty()){
-               Toast.makeText(this, "Please provide email/password", Toast.LENGTH_SHORT).show()
+            if (email_edittext_login.text.isEmpty() || password_edittext_login.text.isEmpty()) {
+                Toast.makeText(this, "Please provide email/password", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            loginUser(email_edittext_login.text.toString(), password_edittext_login.text.toString()) }
+            loginUser(email_edittext_login.text.toString(), password_edittext_login.text.toString())
+        }
     }
 
 
     private fun loginUser(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    navigateToLatestMessageActivity()
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("Login User Status", "loginUser:failure", task.exception)
-                    Toast.makeText(this, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                }
-
-
-            }.addOnFailureListener{
-                Log.d("FAILURE", "Unable to login user")
+        showLoader()
+        serviceManager.loginUser(email, password, authServiceListeners = object : AuthServiceListeners {
+            override fun onSuccess() {
+                hideLoader()
             }
 
+            override fun onFailure() {
+                hideLoader()
+            }
+
+            override fun onSuccess(authResult: AuthResult?) {
+                hideLoader()
+                navigateToActivityClearTask(LatestMessagesActivity())
+            }
+
+            override fun onFailure(exception: Exception?) {
+                hideLoader()
+                Log.w("Login User Status", "loginUser:failure", exception)
+            }
+
+        })
 
     }
 
 
-    private fun navigateToLatestMessageActivity() {
-        var intent = Intent(this, LatestMessagesActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
+    fun showLoader() {
+        loader.visibility = View.VISIBLE
+    }
+
+    fun hideLoader() {
+        loader.visibility = View.GONE
     }
 
 }

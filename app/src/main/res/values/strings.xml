@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">KotlinSampleApp</string>
+    <string name="app_name">Chatter</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="hint_username">Username</string>
     <string name="hint_email">Email</string>
@@ -11,4 +11,8 @@
     <string name="hint_select_photo">Select Photo</string>
     <string name="text_new_message">New Message</string>
     <string name="text_sign_out">Sign Out</string>
+    <string name="title_select_user">Select User</string>
+    <string name="title_chat_log">Chat Log</string>
+    <string name="hint_enter_message">Enter Message</string>
+    <string name="message_send">Send</string>
 </resources>
